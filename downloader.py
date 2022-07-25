@@ -26,7 +26,7 @@ def make_thread(join: bool=True) -> Callable:
 def downloader(url: str, limit_rate: float=0.01, block_size: int=8192) -> str:
     print(f"Download speed is {round(((1 / limit_rate) * block_size / 1000) / 1000, 3)} MB/s")
     try:
-        local_filename = url.split('/')[-1].replace('%', '')
+        local_filename: str = url.split('/')[-1].replace('%', '')
         print(f"{local_filename} is downloading ...")
         with get(url, stream=True) as r:
             r.raise_for_status()
@@ -53,10 +53,17 @@ def main(threads: int=4, time_out: int=2) -> None:
     link: Generator = _reader(download_link_file)
     while True:
         try:
-            for _ in range(threads): downloader(*next(link).split()); time_out(2)
-            for t in _threads: t.join()
-        except StopIteration: print('End!'); break
+            for _ in range(threads):
+                downloader(*next(link).split())
+                sleep(time_out)
+            for t in _threads:
+                t.join()
+        except StopIteration:
+            print('End!')
+            break
 
 if __name__ == '__main__':
-    try: main()
-    except KeyboardInterrupt: sys.exit()
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.exit()
